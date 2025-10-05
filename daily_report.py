@@ -66,16 +66,20 @@ def fetch_fx() -> str:
     return f"Курсы ЦБ: USD {usd:.2f} ₽, EUR {eur:.2f} ₽"
 
 def fetch_crypto() -> str:
-    # CoinGecko simple price (RUB)
+    # CoinGecko simple price (USD)
     ids = "bitcoin,ethereum,solana"
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=rub"
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=usd"
     r = requests.get(url, timeout=20, headers={"Accept": "application/json"})
     r.raise_for_status()
     d: Dict[str, Any] = r.json()
-    btc = d["bitcoin"]["rub"]
-    eth = d["ethereum"]["rub"]
-    sol = d["solana"]["rub"]
-    return f"Крипто (₽): BTC {btc:,.0f}, ETH {eth:,.0f}, SOL {sol:,.0f}".replace(",", " ")
+    btc = d["bitcoin"]["usd"]
+    eth = d["ethereum"]["usd"]
+    sol = d["solana"]["usd"]
+    # format with thousands separators and no decimals; replace comma with thin space for readability
+    btc_str = f"${btc:,.0f}".replace(",", " ")
+    eth_str = f"${eth:,.0f}".replace(",", " ")
+    sol_str = f"${sol:,.0f}".replace(",", " ")
+    return f"₿ Крипто (USD): BTC {btc_str}, ETH {eth_str}, SOL {sol_str}"
 
 def send_telegram_message(text: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -87,10 +91,11 @@ def build_message() -> str:
     today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=3)))  # MSK
     date_str = today.strftime("%d.%m.%Y")
     parts = [
-        f"Доброе утро! Сводка на {date_str}:",
-        fetch_weather_moscow(),
-        fetch_fx(),
-        fetch_crypto(),
+        f"🌅 Доброе утро! Сводка на {date_str}",
+        "",
+        f"☀️ {fetch_weather_moscow()}",
+        f"💱 {fetch_fx()}",
+        f"💹 {fetch_crypto()}",
     ]
     return "\n".join(parts)
 
