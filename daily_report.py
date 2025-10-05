@@ -63,7 +63,7 @@ def fetch_fx() -> str:
     data = r.json()["Valute"]
     usd = data["USD"]["Value"]
     eur = data["EUR"]["Value"]
-    return f"Курсы ЦБ: USD {usd:.2f} ₽, EUR {eur:.2f} ₽"
+    return f"Курсы ЦБ: <b>USD</b> {usd:.2f} ₽, <b>EUR</b> {eur:.2f} ₽"
 
 def fetch_crypto() -> str:
     # CoinGecko simple price (USD)
@@ -86,7 +86,11 @@ def fetch_crypto() -> str:
     g = r2.json()
     btc_d = g.get("data", {}).get("market_cap_percentage", {}).get("btc")
     btc_d_str = f"{btc_d:.1f}%" if isinstance(btc_d, (int, float)) else "n/a"
-    return f"₿ Крипто (USD): BTC {btc_str}, ETH {eth_str}, SOL {sol_str} · BTC.D {btc_d_str}"
+    return (
+        f"₿ Крипто (USD): "
+        f"<b>BTC</b> {btc_str}, <b>ETH</b> {eth_str}, <b>SOL</b> {sol_str} · "
+        f"<b>BTC.D</b> {btc_d_str}"
+    )
 
 def send_telegram_message(text: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
