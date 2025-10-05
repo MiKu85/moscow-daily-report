@@ -79,7 +79,14 @@ def fetch_crypto() -> str:
     btc_str = f"${btc:,.0f}".replace(",", " ")
     eth_str = f"${eth:,.0f}".replace(",", " ")
     sol_str = f"${sol:,.0f}".replace(",", " ")
-    return f"₿ Крипто (USD): BTC {btc_str}, ETH {eth_str}, SOL {sol_str}"
+    # Fetch BTC dominance (global market cap percentage)
+    dom_url = "https://api.coingecko.com/api/v3/global"
+    r2 = requests.get(dom_url, timeout=20, headers={"Accept": "application/json"})
+    r2.raise_for_status()
+    g = r2.json()
+    btc_d = g.get("data", {}).get("market_cap_percentage", {}).get("btc")
+    btc_d_str = f"{btc_d:.1f}%" if isinstance(btc_d, (int, float)) else "n/a"
+    return f"₿ Крипто (USD): BTC {btc_str}, ETH {eth_str}, SOL {sol_str} · BTC.D {btc_d_str}"
 
 def send_telegram_message(text: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
